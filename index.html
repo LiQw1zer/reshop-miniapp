@@ -2,12 +2,11 @@
 <html lang="ru">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <title>Reshop</title>
 
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
 
-  <!-- Красивый шрифт -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@400;600;700&display=swap" rel="stylesheet">
@@ -25,31 +24,57 @@
     }
 
     * { box-sizing: border-box; }
+    html, body { height: 100%; }
+
     body{
       margin: 0;
       font-family: "Unbounded", system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      color: var(--text);
       background:
         radial-gradient(900px 500px at 20% -10%, rgba(139,92,246,0.30), transparent 55%),
         radial-gradient(700px 500px at 100% 0%, rgba(167,139,250,0.20), transparent 55%),
         var(--bg);
-      color: var(--text);
-      padding: 16px;
+
+      /* Важно для Telegram WebView */
+      overflow: hidden;
+    }
+
+    /* Основной контейнер на всю высоту */
+    .app{
+      height: 100vh;
+      height: 100dvh;
+      display: flex;
+      flex-direction: column;
+
+      /* Safe area (iPhone) + аккуратные отступы */
+      padding:
+        calc(14px + env(safe-area-inset-top))
+        14px
+        calc(14px + env(safe-area-inset-bottom))
+        14px;
+    }
+
+    /* Скролл внутри */
+    .scroll{
+      flex: 1;
+      overflow: auto;
+      -webkit-overflow-scrolling: touch;
     }
 
     .wrap{
-      max-width: 520px;
+      max-width: 560px;
       margin: 0 auto;
       display: grid;
       gap: 14px;
+      padding-bottom: 6px;
     }
 
     .header{
-      padding: 14px 14px 6px;
+      padding: 10px 10px 0;
     }
     .title{
       font-size: 22px;
       font-weight: 700;
-      letter-spacing: 0.3px;
       margin: 0 0 6px;
     }
     .subtitle{
@@ -68,10 +93,7 @@
       backdrop-filter: blur(10px);
     }
 
-    .product{
-      display: grid;
-      gap: 10px;
-    }
+    .product{ display: grid; gap: 10px; }
 
     .badge{
       display: inline-flex;
@@ -127,8 +149,8 @@
     .qty button{
       all: unset;
       cursor: pointer;
-      width: 26px;
-      height: 26px;
+      width: 28px;
+      height: 28px;
       display: grid;
       place-items: center;
       border-radius: 10px;
@@ -137,20 +159,20 @@
       box-shadow: 0 0 0 1px rgba(139,92,246,0.20);
     }
     .qty span{
-      min-width: 16px;
+      min-width: 18px;
       text-align: center;
       color: var(--text);
-      font-weight: 600;
+      font-weight: 700;
     }
 
     .btn{
       width: 100%;
       border: 0;
       cursor: pointer;
-      padding: 12px 14px;
+      padding: 13px 14px;
       border-radius: 16px;
       font-family: inherit;
-      font-weight: 700;
+      font-weight: 800;
       letter-spacing: 0.2px;
       color: #0b0a12;
       background: linear-gradient(135deg, var(--purple), var(--purple2));
@@ -166,85 +188,70 @@
       text-align: center;
     }
 
-    pre{
-      margin: 0;
-      padding: 10px;
-      border-radius: 14px;
-      background: rgba(0,0,0,0.35);
-      border: 1px solid rgba(255,255,255,0.08);
-      color: rgba(255,255,255,0.75);
-      font-size: 12px;
-      overflow: auto;
-    }
-
-    /* Небольшая анимация появления */
     .fade-in{ animation: fadeIn .22s ease-out; }
     @keyframes fadeIn { from {opacity:0; transform: translateY(6px);} to {opacity:1; transform: translateY(0);} }
   </style>
 </head>
 
 <body>
-  <div class="wrap">
+  <div class="app">
+    <div class="scroll">
+      <div class="wrap">
 
-    <!-- ЭКРАН 1: Welcome -->
-    <div id="screen-welcome" class="card fade-in" style="padding:18px;">
-      <h1 class="title" style="text-align:center; margin-bottom:10px;">
-        Добро пожаловать в Reshop
-      </h1>
+        <!-- ЭКРАН 1: Welcome -->
+        <div id="screen-welcome" class="card fade-in" style="padding:18px;">
+          <h1 class="title" style="text-align:center; margin-bottom:10px;">
+            Добро пожаловать в Reshop
+          </h1>
 
-      <p class="subtitle" id="hello" style="text-align:center; margin-bottom:14px;">
-        Загрузка…
-      </p>
+          <p class="subtitle" id="hello" style="text-align:center; margin-bottom:14px;">
+            Привет!
+          </p>
 
-      <button class="btn" id="continue">Продолжить</button>
-      <p class="small" style="margin-top:10px;">Нажми, чтобы перейти к товарам</p>
-    </div>
+          <button class="btn" id="continue">Продолжить</button>
+          <p class="small" style="margin-top:10px;">Нажми, чтобы перейти к товарам</p>
+        </div>
 
-    <!-- ЭКРАН 2: Shop -->
-    <div id="screen-shop" style="display:none;" class="fade-in">
-      <div class="header">
-        <h1 class="title">🟣 Reshop</h1>
-        <p class="subtitle">Товары</p>
-      </div>
+        <!-- ЭКРАН 2: Shop -->
+        <div id="screen-shop" style="display:none;" class="fade-in">
+          <div class="header">
+            <h1 class="title">🟣 Reshop</h1>
+            <p class="subtitle">Товары</p>
+          </div>
 
-      <div class="card product">
-        <div class="badge"><span class="dot"></span>Товар недели</div>
-        <h2 class="pname">Zip-Hoodie</h2>
-        <p class="desc">Тёмная зип-худи в фиолетовой эстетике. Пока один товар — тестируем магазин.</p>
+          <div class="card product">
+            <div class="badge"><span class="dot"></span>Товар недели</div>
+            <h2 class="pname">Zip-Hoodie</h2>
+            <p class="desc">Тёмная зип-худи в фиолетовой эстетике. Пока один товар — тестируем магазин.</p>
 
-        <div class="row">
-          <div class="price">€49</div>
+            <div class="row">
+              <div class="price">€49</div>
 
-          <div class="qty">
-            <button id="minus">−</button>
-            <span id="qty">1</span>
-            <button id="plus">+</button>
+              <div class="qty">
+                <button id="minus">−</button>
+                <span id="qty">1</span>
+                <button id="plus">+</button>
+              </div>
+            </div>
+
+            <button class="btn" id="buy">Купить</button>
+            <p class="small">Нажатие отправит заказ в бота</p>
           </div>
         </div>
 
-        <button class="btn" id="buy">Купить</button>
-        <p class="small">Нажатие отправит заказ в бота</p>
-      </div>
-
-      <div class="card">
-        <p class="small" style="text-align:left;margin-bottom:8px;">initData (для проверки):</p>
-        <pre id="initData"></pre>
       </div>
     </div>
-
   </div>
 
   <script>
     const tg = window.Telegram.WebApp;
     tg.ready();
+    tg.expand();
 
     // Приветствие
     const user = tg.initDataUnsafe?.user;
     const hello = document.getElementById('hello');
-    hello.textContent = user ? `Привет!, ${user.first_name}!` : 'Привет!';
-
-    // initData
-    document.getElementById('initData').textContent = tg.initData || '';
+    hello.textContent = user ? `Привет, ${user.first_name}!` : 'Привет!';
 
     // Переключение экранов
     const welcome = document.getElementById('screen-welcome');
@@ -278,6 +285,7 @@
         qty
       }));
       tg.HapticFeedback?.impactOccurred('medium');
+      tg.close();
     };
   </script>
 </body>
