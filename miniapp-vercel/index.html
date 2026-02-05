@@ -1,0 +1,283 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>Reshop</title>
+
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@400;600;700&display=swap" rel="stylesheet">
+
+  <style>
+    :root{
+      --bg: #0b0a12;
+      --card: rgba(255,255,255,0.06);
+      --stroke: rgba(255,255,255,0.10);
+      --text: rgba(255,255,255,0.92);
+      --muted: rgba(255,255,255,0.68);
+      --purple: #8b5cf6;
+      --purple2: #a78bfa;
+      --glow: rgba(139,92,246,0.35);
+    }
+
+    *{ box-sizing:border-box; }
+    html, body{ height:100%; }
+
+    body{
+      margin:0;
+      font-family:"Unbounded", system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      color:var(--text);
+      background:#0b0a12;
+      overflow:hidden;
+    }
+
+    .app{
+      height:100svh;
+      height:100dvh;
+      padding:
+        calc(12px + env(safe-area-inset-top))
+        12px
+        calc(12px + env(safe-area-inset-bottom))
+        12px;
+      display:flex;
+      flex-direction:column;
+    }
+
+    .screen{ flex:1; display:none; }
+    .screen.active{ display:block; }
+
+    /* ===== WELCOME HERO ===== */
+    .welcome-hero{
+      position:relative;
+      height:100%;
+      border-radius:22px;
+      overflow:hidden;
+      border:1px solid var(--stroke);
+      box-shadow:0 20px 60px rgba(0,0,0,.45);
+      background:#000;
+    }
+
+    .welcome-hero::before{
+      content:"";
+      position:absolute;
+      inset:0;
+      background:url("./hero.jpg") center / cover no-repeat;
+      transform:scale(1.03);
+    }
+
+    .welcome-hero::after{
+      content:"";
+      position:absolute;
+      inset:0;
+      background:
+        radial-gradient(900px 500px at 40% -10%, rgba(139,92,246,0.25), transparent 60%),
+        linear-gradient(to bottom, rgba(0,0,0,0.15), rgba(0,0,0,0.9));
+    }
+
+    .welcome-content{
+      position:absolute;
+      inset:0;
+      z-index:2;
+      display:flex;
+      flex-direction:column;
+      justify-content:flex-end;
+      padding:
+        18px
+        16px
+        calc(16px + env(safe-area-inset-bottom))
+        16px;
+    }
+
+    .welcome-title{
+      margin:0 0 8px;
+      font-size:26px;
+      font-weight:800;
+      line-height:1.1;
+      text-shadow:0 10px 30px rgba(0,0,0,.6);
+    }
+
+    .welcome-sub{
+      margin:0 0 14px;
+      font-size:13px;
+      color:rgba(255,255,255,.78);
+    }
+
+    .btn{
+      width:100%;
+      border:0;
+      cursor:pointer;
+      padding:14px;
+      border-radius:16px;
+      font-family:inherit;
+      font-weight:800;
+      color:#0b0a12;
+      background:linear-gradient(135deg, var(--purple), var(--purple2));
+      box-shadow:0 14px 40px var(--glow);
+    }
+
+    .small{
+      font-size:12px;
+      color:var(--muted);
+      text-align:center;
+      margin:8px 0 0;
+    }
+
+    /* ===== SHOP ===== */
+    .wrap{
+      max-width:560px;
+      margin:0 auto;
+      display:grid;
+      gap:14px;
+    }
+
+    .header{ padding:10px 6px 0; }
+    .title{ font-size:22px; margin:0 0 4px; }
+    .subtitle{ margin:0; font-size:13px; color:var(--muted); }
+
+    .card{
+      background:var(--card);
+      border:1px solid var(--stroke);
+      border-radius:18px;
+      padding:14px;
+      backdrop-filter:blur(10px);
+      box-shadow:0 20px 60px rgba(0,0,0,.35);
+    }
+
+    .product{ display:grid; gap:10px; }
+
+    .badge{
+      display:inline-flex;
+      gap:8px;
+      font-size:12px;
+      color:var(--muted);
+      align-items:center;
+    }
+
+    .dot{
+      width:10px; height:10px; border-radius:999px;
+      background:linear-gradient(135deg, var(--purple), var(--purple2));
+      box-shadow:0 0 18px var(--glow);
+    }
+
+    .pname{ font-size:20px; margin:0; }
+    .desc{ font-size:13px; margin:0; color:var(--muted); }
+
+    .row{
+      display:flex; justify-content:space-between; align-items:center; gap:12px;
+    }
+
+    .price{ font-size:18px; font-weight:700; }
+
+    .qty{
+      display:flex; gap:8px; align-items:center;
+      background:rgba(255,255,255,.05);
+      border:1px solid rgba(255,255,255,.1);
+      border-radius:14px; padding:6px 10px;
+    }
+
+    .qty button{
+      all:unset; cursor:pointer;
+      width:28px; height:28px; border-radius:10px;
+      display:grid; place-items:center;
+      background:rgba(139,92,246,.18);
+    }
+
+    @media (max-height:700px){
+      .welcome-title{ font-size:22px; }
+      .welcome-sub{ font-size:12px; }
+      .btn{ padding:12px; border-radius:14px; }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="app">
+
+    <!-- WELCOME -->
+    <div id="screen-welcome" class="screen active">
+      <div class="welcome-hero">
+        <div class="welcome-content">
+          <h1 class="welcome-title">Добро пожаловать в Reshop</h1>
+          <p class="welcome-sub" id="hello">Привет!</p>
+          <button class="btn" id="continue">Перейти в магазин</button>
+          <p class="small">Нажми, чтобы посмотреть товары</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- SHOP -->
+    <div id="screen-shop" class="screen">
+      <div class="wrap">
+        <div class="header">
+          <h1 class="title">🟣 Reshop</h1>
+          <p class="subtitle">Товары</p>
+        </div>
+
+        <div class="card product">
+          <div class="badge"><span class="dot"></span>Товар недели</div>
+          <h2 class="pname">Zip-Hoodie</h2>
+          <p class="desc">Тёмная зип-худи в фиолетовой эстетике.</p>
+
+          <div class="row">
+            <div class="price">€49</div>
+            <div class="qty">
+              <button id="minus">−</button>
+              <span id="qty">1</span>
+              <button id="plus">+</button>
+            </div>
+          </div>
+
+          <button class="btn" id="buy">Купить</button>
+          <p class="small">Нажатие отправит заказ в бота</p>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <script>
+    const tg = window.Telegram.WebApp;
+    tg.ready();
+    tg.expand();
+
+    const user = tg.initDataUnsafe?.user;
+    document.getElementById('hello').textContent =
+      user ? `Привет, ${user.first_name}!` : 'Привет!';
+
+    const welcome = document.getElementById('screen-welcome');
+    const shop = document.getElementById('screen-shop');
+
+    document.getElementById('continue').onclick = () => {
+      welcome.classList.remove('active');
+      shop.classList.add('active');
+      tg.HapticFeedback?.impactOccurred('light');
+    };
+
+    let qty = 1;
+    const qtyEl = document.getElementById('qty');
+
+    document.getElementById('plus').onclick = () => {
+      qty = Math.min(99, qty + 1);
+      qtyEl.textContent = qty;
+    };
+
+    document.getElementById('minus').onclick = () => {
+      qty = Math.max(1, qty - 1);
+      qtyEl.textContent = qty;
+    };
+
+    document.getElementById('buy').onclick = () => {
+      tg.sendData(JSON.stringify({
+        action: 'buy',
+        product: 'Zip-Hoodie',
+        qty
+      }));
+      tg.HapticFeedback?.impactOccurred('medium');
+      tg.close();
+    };
+  </script>
+</body>
+</html>
