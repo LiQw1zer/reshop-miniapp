@@ -44,10 +44,53 @@
         12px;
       display:flex;
       flex-direction:column;
+      position:relative;
     }
 
-    .screen{ flex:1; display:none; }
-    .screen.active{ display:block; }
+    /* ===== SCREEN SWITCH + ANIMATION ===== */
+    .screen{
+      flex:1;
+      display:none;
+      height:100%;
+    }
+    .screen.active{
+      display:block;
+    }
+
+    /* Чтобы оба экрана могли анимироваться поверх друг друга */
+    .screen{
+      position:absolute;
+      inset:
+        calc(12px + env(safe-area-inset-top))
+        12px
+        calc(12px + env(safe-area-inset-bottom))
+        12px;
+    }
+
+    /* Переходы */
+    .anim{
+      transition: opacity .35s ease, transform .35s ease, filter .35s ease;
+      will-change: opacity, transform, filter;
+    }
+
+    .fade-out{
+      opacity:0;
+      transform: translateY(-10px) scale(.99);
+      filter: blur(2px);
+      pointer-events:none;
+    }
+
+    .fade-in-start{
+      opacity:0;
+      transform: translateY(12px);
+      filter: blur(2px);
+    }
+
+    .fade-in{
+      opacity:1;
+      transform: translateY(0);
+      filter: blur(0);
+    }
 
     /* ===== WELCOME HERO ===== */
     .welcome-hero{
@@ -77,24 +120,17 @@
         linear-gradient(to bottom, rgba(0,0,0,0.15), rgba(0,0,0,0.9));
     }
 
+    /* Центр + чуть ниже */
     .welcome-content{
       position:absolute;
       inset:0;
       z-index:2;
       display:flex;
       flex-direction:column;
-
-      /* ✅ Было: justify-content:flex-end; */
       justify-content:center;
-
-      /* ✅ Центрируем по горизонтали */
       align-items:center;
       text-align:center;
-
-      /* ✅ Сдвигаем чуть ниже центра (можешь менять 20px -> 30px/40px) */
       transform: translateY(22px);
-
-      /* ✅ Отступы оставляем, но без сильной привязки к низу */
       padding:
         calc(18px + env(safe-area-inset-top))
         16px
@@ -108,18 +144,19 @@
       font-weight:800;
       line-height:1.1;
       text-shadow:0 10px 30px rgba(0,0,0,.6);
-      max-width: 520px;
+      max-width:520px;
     }
 
     .welcome-sub{
       margin:0 0 14px;
       font-size:13px;
       color:rgba(255,255,255,.78);
-      max-width: 520px;
+      max-width:520px;
     }
 
     .btn{
       width:100%;
+      max-width:520px;
       border:0;
       cursor:pointer;
       padding:14px;
@@ -129,7 +166,6 @@
       color:#0b0a12;
       background:linear-gradient(135deg, var(--purple), var(--purple2));
       box-shadow:0 14px 40px var(--glow);
-      max-width: 520px;
     }
 
     .small{
@@ -137,7 +173,7 @@
       color:var(--muted);
       text-align:center;
       margin:8px 0 0;
-      max-width: 520px;
+      max-width:520px;
     }
 
     /* ===== SHOP ===== */
@@ -204,9 +240,12 @@
       .welcome-title{ font-size:22px; }
       .welcome-sub{ font-size:12px; }
       .btn{ padding:12px; border-radius:14px; }
-
-      /* ✅ На маленькой высоте чуть меньше сдвиг */
       .welcome-content{ transform: translateY(14px); }
+    }
+
+    /* (необязательно) уважение к настройке "уменьшить движения" */
+    @media (prefers-reduced-motion: reduce){
+      .anim{ transition:none !important; }
     }
   </style>
 </head>
@@ -215,7 +254,7 @@
   <div class="app">
 
     <!-- WELCOME -->
-    <div id="screen-welcome" class="screen active">
+    <div id="screen-welcome" class="screen active anim">
       <div class="welcome-hero">
         <div class="welcome-content">
           <h1 class="welcome-title">Добро пожаловать в Reshop</h1>
@@ -227,7 +266,7 @@
     </div>
 
     <!-- SHOP -->
-    <div id="screen-shop" class="screen">
+    <div id="screen-shop" class="screen anim">
       <div class="wrap">
         <div class="header">
           <h1 class="title">🟣 Reshop</h1>
@@ -267,12 +306,36 @@
 
     const welcome = document.getElementById('screen-welcome');
     const shop = document.getElementById('screen-shop');
+    const btnContinue = document.getElementById('continue');
 
-    document.getElementById('continue').onclick = () => {
-      welcome.classList.remove('active');
-      shop.classList.add('active');
+    const DURATION = 360; // должно совпадать с .35s в CSS (чуть запас)
+
+    function gotoShop(){
+      // защита от двойного клика
+      btnContinue.disabled = true;
+
+      // старт: у welcome всё нормально, shop готовим к появлению
+      shop.classList.add('active', 'fade-in-start');
+
+      // форсим reflow чтобы браузер применил стартовые стили
+      void shop.offsetWidth;
+
+      // запускаем анимации
+      welcome.classList.add('fade-out');
+      shop.classList.add('fade-in');
+      shop.classList.remove('fade-in-start');
+
       tg.HapticFeedback?.impactOccurred('light');
-    };
+
+      // после окончания — скрываем welcome окончательно
+      setTimeout(() => {
+        welcome.classList.remove('active', 'fade-out');
+        // оставляем shop active + fade-in (можно убрать fade-in если хочешь)
+        btnContinue.disabled = false;
+      }, DURATION);
+    }
+
+    btnContinue.onclick = gotoShop;
 
     let qty = 1;
     const qtyEl = document.getElementById('qty');
