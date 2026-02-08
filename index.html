@@ -23,224 +23,237 @@
       --glow: rgba(139,92,246,0.35);
     }
 
-    * { box-sizing: border-box; }
-    html, body { height: 100%; }
+    *{ box-sizing:border-box; }
+    html, body{ height:100%; }
 
     body{
-      margin: 0;
-      font-family: "Unbounded", system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
-      color: var(--text);
-      background:
-        radial-gradient(900px 500px at 20% -10%, rgba(139,92,246,0.30), transparent 55%),
-        radial-gradient(700px 500px at 100% 0%, rgba(167,139,250,0.20), transparent 55%),
-        var(--bg);
-
-      /* Важно для Telegram WebView */
-      overflow: hidden;
+      margin:0;
+      font-family:"Unbounded", system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      color:var(--text);
+      background:#0b0a12;
+      overflow:hidden;
     }
 
-    /* Основной контейнер на всю высоту */
     .app{
-      height: 100vh;
-      height: 100dvh;
-      display: flex;
-      flex-direction: column;
-
-      /* Safe area (iPhone) + аккуратные отступы */
+      height:100svh;
+      height:100dvh;
       padding:
-        calc(14px + env(safe-area-inset-top))
-        14px
-        calc(14px + env(safe-area-inset-bottom))
-        14px;
+        calc(12px + env(safe-area-inset-top))
+        12px
+        calc(12px + env(safe-area-inset-bottom))
+        12px;
+      display:flex;
+      flex-direction:column;
     }
 
-    /* Скролл внутри */
-    .scroll{
-      flex: 1;
-      overflow: auto;
-      -webkit-overflow-scrolling: touch;
+    .screen{ flex:1; display:none; }
+    .screen.active{ display:block; }
+
+    /* ===== WELCOME HERO ===== */
+    .welcome-hero{
+      position:relative;
+      height:100%;
+      border-radius:22px;
+      overflow:hidden;
+      border:1px solid var(--stroke);
+      box-shadow:0 20px 60px rgba(0,0,0,.45);
+      background:#000;
     }
 
-    .wrap{
-      max-width: 560px;
-      margin: 0 auto;
-      display: grid;
-      gap: 14px;
-      padding-bottom: 6px;
+    .welcome-hero::before{
+      content:"";
+      position:absolute;
+      inset:0;
+      background:url("/hero.jpg") center / cover no-repeat;
+      transform:scale(1.03);
     }
 
-    .header{
-      padding: 10px 10px 0;
-    }
-    .title{
-      font-size: 22px;
-      font-weight: 700;
-      margin: 0 0 6px;
-    }
-    .subtitle{
-      margin: 0;
-      color: var(--muted);
-      font-size: 13px;
-      line-height: 1.4;
+    .welcome-hero::after{
+      content:"";
+      position:absolute;
+      inset:0;
+      background:
+        radial-gradient(900px 500px at 40% -10%, rgba(139,92,246,0.25), transparent 60%),
+        linear-gradient(to bottom, rgba(0,0,0,0.15), rgba(0,0,0,0.9));
     }
 
-    .card{
-      background: var(--card);
-      border: 1px solid var(--stroke);
-      border-radius: 18px;
-      padding: 14px;
-      box-shadow: 0 0 0 1px rgba(139,92,246,0.05), 0 20px 60px rgba(0,0,0,0.35);
-      backdrop-filter: blur(10px);
+    .welcome-content{
+      position:absolute;
+      inset:0;
+      z-index:2;
+      display:flex;
+      flex-direction:column;
+
+      /* ✅ Было: justify-content:flex-end; */
+      justify-content:center;
+
+      /* ✅ Центрируем по горизонтали */
+      align-items:center;
+      text-align:center;
+
+      /* ✅ Сдвигаем чуть ниже центра (можешь менять 20px -> 30px/40px) */
+      transform: translateY(22px);
+
+      /* ✅ Отступы оставляем, но без сильной привязки к низу */
+      padding:
+        calc(18px + env(safe-area-inset-top))
+        16px
+        calc(18px + env(safe-area-inset-bottom))
+        16px;
     }
 
-    .product{ display: grid; gap: 10px; }
-
-    .badge{
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      font-size: 12px;
-      color: var(--muted);
-    }
-    .dot{
-      width: 10px;
-      height: 10px;
-      border-radius: 999px;
-      background: linear-gradient(135deg, var(--purple), var(--purple2));
-      box-shadow: 0 0 18px var(--glow);
+    .welcome-title{
+      margin:0 0 8px;
+      font-size:26px;
+      font-weight:800;
+      line-height:1.1;
+      text-shadow:0 10px 30px rgba(0,0,0,.6);
+      max-width: 520px;
     }
 
-    .pname{
-      font-size: 20px;
-      font-weight: 700;
-      margin: 0;
-    }
-    .desc{
-      margin: 0;
-      color: var(--muted);
-      font-size: 13px;
-      line-height: 1.4;
-    }
-
-    .row{
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 12px;
-      margin-top: 6px;
-    }
-
-    .price{
-      font-size: 18px;
-      font-weight: 700;
-    }
-
-    .qty{
-      display: inline-flex;
-      gap: 8px;
-      align-items: center;
-      background: rgba(255,255,255,0.05);
-      border: 1px solid rgba(255,255,255,0.10);
-      border-radius: 14px;
-      padding: 6px 10px;
-      color: var(--muted);
-      font-size: 13px;
-    }
-    .qty button{
-      all: unset;
-      cursor: pointer;
-      width: 28px;
-      height: 28px;
-      display: grid;
-      place-items: center;
-      border-radius: 10px;
-      background: rgba(139,92,246,0.18);
-      color: var(--text);
-      box-shadow: 0 0 0 1px rgba(139,92,246,0.20);
-    }
-    .qty span{
-      min-width: 18px;
-      text-align: center;
-      color: var(--text);
-      font-weight: 700;
+    .welcome-sub{
+      margin:0 0 14px;
+      font-size:13px;
+      color:rgba(255,255,255,.78);
+      max-width: 520px;
     }
 
     .btn{
-      width: 100%;
-      border: 0;
-      cursor: pointer;
-      padding: 13px 14px;
-      border-radius: 16px;
-      font-family: inherit;
-      font-weight: 800;
-      letter-spacing: 0.2px;
-      color: #0b0a12;
-      background: linear-gradient(135deg, var(--purple), var(--purple2));
-      box-shadow: 0 14px 40px var(--glow);
-      transition: transform .12s ease, opacity .12s ease;
+      width:100%;
+      border:0;
+      cursor:pointer;
+      padding:14px;
+      border-radius:16px;
+      font-family:inherit;
+      font-weight:800;
+      color:#0b0a12;
+      background:linear-gradient(135deg, var(--purple), var(--purple2));
+      box-shadow:0 14px 40px var(--glow);
+      max-width: 520px;
     }
-    .btn:active{ transform: translateY(1px); }
 
     .small{
-      font-size: 12px;
-      color: var(--muted);
-      margin: 0;
-      text-align: center;
+      font-size:12px;
+      color:var(--muted);
+      text-align:center;
+      margin:8px 0 0;
+      max-width: 520px;
     }
 
-    .fade-in{ animation: fadeIn .22s ease-out; }
-    @keyframes fadeIn { from {opacity:0; transform: translateY(6px);} to {opacity:1; transform: translateY(0);} }
+    /* ===== SHOP ===== */
+    .wrap{
+      max-width:560px;
+      margin:0 auto;
+      display:grid;
+      gap:14px;
+    }
+
+    .header{ padding:10px 6px 0; }
+    .title{ font-size:22px; margin:0 0 4px; }
+    .subtitle{ margin:0; font-size:13px; color:var(--muted); }
+
+    .card{
+      background:var(--card);
+      border:1px solid var(--stroke);
+      border-radius:18px;
+      padding:14px;
+      backdrop-filter:blur(10px);
+      box-shadow:0 20px 60px rgba(0,0,0,.35);
+    }
+
+    .product{ display:grid; gap:10px; }
+
+    .badge{
+      display:inline-flex;
+      gap:8px;
+      font-size:12px;
+      color:var(--muted);
+      align-items:center;
+    }
+
+    .dot{
+      width:10px; height:10px; border-radius:999px;
+      background:linear-gradient(135deg, var(--purple), var(--purple2));
+      box-shadow:0 0 18px var(--glow);
+    }
+
+    .pname{ font-size:20px; margin:0; }
+    .desc{ font-size:13px; margin:0; color:var(--muted); }
+
+    .row{
+      display:flex; justify-content:space-between; align-items:center; gap:12px;
+    }
+
+    .price{ font-size:18px; font-weight:700; }
+
+    .qty{
+      display:flex; gap:8px; align-items:center;
+      background:rgba(255,255,255,.05);
+      border:1px solid rgba(255,255,255,.1);
+      border-radius:14px; padding:6px 10px;
+    }
+
+    .qty button{
+      all:unset; cursor:pointer;
+      width:28px; height:28px; border-radius:10px;
+      display:grid; place-items:center;
+      background:rgba(139,92,246,.18);
+    }
+
+    @media (max-height:700px){
+      .welcome-title{ font-size:22px; }
+      .welcome-sub{ font-size:12px; }
+      .btn{ padding:12px; border-radius:14px; }
+
+      /* ✅ На маленькой высоте чуть меньше сдвиг */
+      .welcome-content{ transform: translateY(14px); }
+    }
   </style>
 </head>
 
 <body>
   <div class="app">
-    <div class="scroll">
-      <div class="wrap">
 
-        <!-- ЭКРАН 1: Welcome -->
-        <div id="screen-welcome" class="card fade-in" style="padding:18px;">
-          <h1 class="title" style="text-align:center; margin-bottom:10px;">
-            Добро пожаловать в Reshop
-          </h1>
-
-          <p class="subtitle" id="hello" style="text-align:center; margin-bottom:14px;">
-            Привет!
-          </p>
-
-          <button class="btn" id="continue">Продолжить</button>
-          <p class="small" style="margin-top:10px;">Нажми, чтобы перейти к товарам</p>
+    <!-- WELCOME -->
+    <div id="screen-welcome" class="screen active">
+      <div class="welcome-hero">
+        <div class="welcome-content">
+          <h1 class="welcome-title">Добро пожаловать в Reshop</h1>
+          <p class="welcome-sub" id="hello">Привет!</p>
+          <button class="btn" id="continue">Перейти в магазин</button>
+          <p class="small">Нажми, чтобы посмотреть товары</p>
         </div>
-
-        <!-- ЭКРАН 2: Shop -->
-        <div id="screen-shop" style="display:none;" class="fade-in">
-          <div class="header">
-            <h1 class="title">🟣 Reshop</h1>
-            <p class="subtitle">Товары</p>
-          </div>
-
-          <div class="card product">
-            <div class="badge"><span class="dot"></span>Товар недели</div>
-            <h2 class="pname">Zip-Hoodie</h2>
-            <p class="desc">Тёмная зип-худи в фиолетовой эстетике. Пока один товар — тестируем магазин.</p>
-
-            <div class="row">
-              <div class="price">€49</div>
-
-              <div class="qty">
-                <button id="minus">−</button>
-                <span id="qty">1</span>
-                <button id="plus">+</button>
-              </div>
-            </div>
-
-            <button class="btn" id="buy">Купить</button>
-            <p class="small">Нажатие отправит заказ в бота</p>
-          </div>
-        </div>
-
       </div>
     </div>
+
+    <!-- SHOP -->
+    <div id="screen-shop" class="screen">
+      <div class="wrap">
+        <div class="header">
+          <h1 class="title">🟣 Reshop</h1>
+          <p class="subtitle">Товары</p>
+        </div>
+
+        <div class="card product">
+          <div class="badge"><span class="dot"></span>Товар недели</div>
+          <h2 class="pname">Zip-Hoodie</h2>
+          <p class="desc">Тёмная зип-худи в фиолетовой эстетике.</p>
+
+          <div class="row">
+            <div class="price">€49</div>
+            <div class="qty">
+              <button id="minus">−</button>
+              <span id="qty">1</span>
+              <button id="plus">+</button>
+            </div>
+          </div>
+
+          <button class="btn" id="buy">Купить</button>
+          <p class="small">Нажатие отправит заказ в бота</p>
+        </div>
+      </div>
+    </div>
+
   </div>
 
   <script>
@@ -248,22 +261,19 @@
     tg.ready();
     tg.expand();
 
-    // Приветствие
     const user = tg.initDataUnsafe?.user;
-    const hello = document.getElementById('hello');
-    hello.textContent = user ? `Привет, ${user.first_name}!` : 'Привет!';
+    document.getElementById('hello').textContent =
+      user ? `Привет, ${user.first_name}!` : 'Привет!';
 
-    // Переключение экранов
     const welcome = document.getElementById('screen-welcome');
     const shop = document.getElementById('screen-shop');
 
     document.getElementById('continue').onclick = () => {
-      welcome.style.display = 'none';
-      shop.style.display = 'block';
+      welcome.classList.remove('active');
+      shop.classList.add('active');
       tg.HapticFeedback?.impactOccurred('light');
     };
 
-    // Количество
     let qty = 1;
     const qtyEl = document.getElementById('qty');
 
@@ -277,7 +287,6 @@
       qtyEl.textContent = qty;
     };
 
-    // Покупка
     document.getElementById('buy').onclick = () => {
       tg.sendData(JSON.stringify({
         action: 'buy',
